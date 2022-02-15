@@ -1,10 +1,4 @@
-/* compile with 
-arm-none-eabi-as --warn --fatal-warnings -mcpu=cortex-m3 flash.s -o flash.o
-arm-none-eabi-gcc -Wall -O2 -ffreestanding -mcpu=cortex-m3 -mthumb -c notmain.c -o notmain.o
-arm-none-eabi-ld -nostdlib -nostartfiles -T flash.ld flash.o notmain.o -o notmain.elf
-arm-none-eabi-objdump -D notmain.elf > notmain.list
-arm-none-eabi-objcopy -O binary notmain.elf notmain.bin
-*/
+
 
 void PUT32 ( unsigned int, unsigned int );
 unsigned int GET32 ( unsigned int );
@@ -12,35 +6,36 @@ void dummy ( unsigned int );
 
 	
 
-#define GPIOCBASE 0x40011000
-//  PERIPH_BASE = 0x40000000 +
-//  APB2_BASE   = 0x00010000 +
-//  GPIOC_BASE  = 0x00001000
+#define PERIPH_BASE  0x40000000
+#define APB2_BASE    0x00010000
+#define GPIOC_BASE   0x00001000
+#define GPIOC        0x40011000 
+#define CRH          0x04 
+#define GPIOX_BSRR   0x10
 
-#define RCC_BASE 0x40021000
-// PERIPH_BASE = 0x40000000 +
-// AHB_BASE    = 0x00020000 +
-// GPIOC_BASE  = 0x00001000
-#define RCC_APB2ENR (RCC_BASE+0x18) //0x18 - RCC_APB2ENR
-#define RCC_APB1ENR (RCC_BASE+0x1C) //0x1C - RCC_APB1ENR
-#define RCC_CR      (RCC_BASE+0x00) //0x00 - CR(control register)
-#define RCC_CFGR    (RCC_BASE+0x04) //0x04 - CFGR
+// ResetClockController register
+#define RCC_BASE 0x40021000  // PERIPH_BASE | AHB_BASE | GPIOC_BASE 
+#define RCC_APB2ENR (RCC_BASE+0x18) // 0x18 offset - RCC_APB2ENR
+#define RCC_APB1ENR (RCC_BASE+0x1C) // 0x1C offset - RCC_APB1ENR
+#define RCC_CR      (RCC_BASE+0x00) // 0x00 offset - CR(control register)
+#define RCC_CFGR    (RCC_BASE+0x04) // 0x04 offset - CFGR
+
 #define FLASH_ACR   0x40022000
 
 
 
 void blinker ( unsigned int n )
 {
-    unsigned int ra;
-    unsigned int rx;
+    unsigned int i;
+    unsigned int j;
 
-    for(rx=0;rx<n;rx++)
+    for(j=0;j<n;j++)
     {
-    	// BSRR
-	PUT32(GPIOCBASE+0x10,1<<(13+ 0));
-	for(ra=0;ra<200000;ra++) dummy(ra);
-	PUT32(GPIOCBASE+0x10,1<<(13+16));
-	for(ra=0;ra<200000;ra++) dummy(ra);
+        PUT32(GPIOC+GPIOX_BSRR, 1<<(13+ 0));    // write BS13 (bit set) in BSRR
+        for(i=0;i<200000;i++) dummy(i);         // dummy delay
+        
+        PUT32(GPIOC+GPIOX_BSRR,1<<(13+16));     // write BR13 (bit reset) in BSSR
+        for(i=0;i<200000;i++) dummy(i);         // dummy delay
     }
 }
 
@@ -48,65 +43,70 @@ int notmain ( void )
 {
     unsigned int ra;
 
-    /* Configure Clock */ 
-    // RCC_CR : 0x00, ResetClockControler Control Register
-    ra = GET32(RCC_CR); 
-    ra |= 1 << 16; // HSE ON
-    PUT32(RCC_CR,ra);
-    
-    while(1) if(GET32(RCC_CR)&(1<<17)) break; // wait for hse ready bit
+    // turn on High Speed External oscillator 
+    ra = GET32(RCC_CR);                           // get register 
+    ra |= 1 << 16;                                // set bit 16 (HSEON)
+    PUT32(RCC_CR,ra);                             // put back modified value  
+    while(1) if(GET32(RCC_CR) & (1<<17)) break;   // wait for ready flag (bit 17 HSERDY)
     
     
-    // HSE selected as clk source 
-    ra = GET32(RCC_CFGR); 
-    ra &= ~(0x3<<0);  
-    ra |= (0x1<<0);  
-    PUT32(RCC_CFGR,ra);
+    // select HSE as system clock
+    ra = GET32(RCC_CFGR);                           // get register 
+    ra &= ~(0x3<<0);                                // clear last two bits (system clock switch)
+    ra |= (0x1<<0);                                 // set last bit (01 - HSE selected as system clock)
+    PUT32(RCC_CFGR,ra);                             // put back modified value 
+    while(1) if((GET32(RCC_CFGR)&0xF)==0x5) break;  // wait for ready flag
 
-    while(1) if((GET32(RCC_CFGR)&0xF)==0x5) break;
 
-    //GPIOC clock enable 
-    ra = GET32(RCC_APB2ENR); 
-    ra |= 1<<4; // set clock for GPIOC
-    PUT32(RCC_APB2ENR,ra);
+    // enable system clock for port c (GPIOC)
+    ra = GET32(RCC_APB2ENR);                        // get register
+    ra |= 1<<4;                                     // set bit 4 (IOPCEN) port C clock enable 
+    PUT32(RCC_APB2ENR,ra);                          // put back modified value 
         
-    // PC13 configuration CRH:0x04
-    ra = GET32(GPIOCBASE+0x04);  
-    ra &= ~(3<<20); // clear MODE13 bits
-    ra |=   1<<20;  // output mode 10mhz  
-    ra &= ~(3<<22); // clear FUNC13 bits    
-    ra |=   0<<22;  // push pull    
-    PUT32(GPIOCBASE+0x04,ra);
+
+    // set Port configuration register high
+    ra = GET32(GPIOC+CRH);                          // get register 
+    ra &= ~(3<<20);                                 // clear bits [21:20] (MODE13)
+    ra |=   1<<20;                                  // select output mode 10Mhz  
+    ra &= ~(3<<22);                                 // clear bits [23:22] (CNF13)    
+    ra |=   0<<22;                                  // select output as PUSH-PULL    
+    PUT32(GPIOC+CRH,ra);                            // put back modified value 
 
 
     blinker(5);
     
-    //[RCC_CFGR 0x04]
-    ra = 0; // 
-    ra |= 0x7<<24; // MCO:111 - pll selecte
-    ra |= 0x0<<22; // USB prescaler 
-    ra |= 0x7<<18; // PLLMUL je 0111(9) x 8Mhz = 72Mhz
-    ra |= 0x0<<17; // PLL_XTPRE: 0-HSE, 1-HSE/2
-    ra |= 0x1<<16; // PLL_SRC: 0-HSI/2, 1-HSE e
-    ra |= 0x0<<14; // ADCPRE
-    ra |= 0x0<<11; // PPRE2 // APB2 prescaler not divided 0xx
-    ra |= 0x4<<8;  // PPRE1 // APB1 precaler not divided 0xx
-    ra |= 0x0<<4;  // HPRE // AHB prescaer, Sys clock no divided
-    PUT32(RCC_CFGR,ra);
+
+    // set RCC configuration regeister (RCC_CFGR offset 0x04)
+    ra = 0;             // clear register 
+    ra |= 0x7<<24;      // MCO:111 - pll selecte
+    ra |= 0x0<<22;      // USB prescaler 
+    ra |= 0x7<<18;      // PLLMUL je 0111(9) x 8Mhz = 72Mhz
+    ra |= 0x0<<17;      // PLL_XTPRE: 0-HSE, 1-HSE/2
+    ra |= 0x1<<16;      // PLL_SRC: 0-HSI/2, 1-HSE e
+    ra |= 0x0<<14;      // ADCPRE
+    ra |= 0x0<<11;      // PPRE2 // APB2 prescaler not divided 0xx
+    ra |= 0x4<<8;       // PPRE1 // APB1 precaler not divided 0xx
+    ra |= 0x0<<4;       // HPRE // AHB prescaer, Sys clock no divided
+    PUT32(RCC_CFGR,ra); // put back modified val 
 
 
-    ra = GET32(RCC_CR); 
-    ra |= 1<<24; // PLLON
-    PUT32(RCC_CR,ra);
-    while(1) if(GET32(RCC_CR)&(1<<25)) break;
+    // ResetClockController_ControlRegister 
+    ra = GET32(RCC_CR);                         // get register
+    ra |= 1<<24;                                // turn on PLL (bit PLLON)
+    PUT32(RCC_CR,ra);                           // write back modified value
+    while(1) if(GET32(RCC_CR)&(1<<25)) break;   // wait for ready flag (bit 25 PLLRDY)
+
+
 
     PUT32(FLASH_ACR,0x2);
 
-    ra=GET32(RCC_CFGR); 
-    ra&=~(0x3<<0);
-    ra|= (0x2<<0);
-    PUT32(RCC_CFGR,ra);
-    while(1) if((GET32(RCC_CFGR)&0xF)==0xA) break;
+
+    ra = GET32(RCC_CFGR);                           // get register 
+    ra &= ~(0x3<<0);                                // clear bits [1:0] (system clock switch)
+    ra |= (0x2<<0);                                 // set bit [1] PLL selected as system clock
+    PUT32(RCC_CFGR,ra);                             // put back modified value  
+    while(1) if((GET32(RCC_CFGR)&0xF)==0xA) break;  // wait for 2 flags, bit [3] - PLL used as system clock (switch status, set by hardware)
+                                                    //                   bit [1] - PLL selected as system clock (switch,set by hardware, sets HSI if HSE breaks)
     
     blinker(50000);
     
