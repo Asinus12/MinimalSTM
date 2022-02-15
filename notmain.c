@@ -73,8 +73,8 @@ int notmain ( void )
     PUT32(GPIOC+CRH,ra);                            // put back modified value 
 
 
+    // blink with frequency determined by HSE 
     blinker(5);
-    
 
     // set RCC configuration regeister (RCC_CFGR offset 0x04)
     ra = 0;             // clear register 
@@ -108,6 +108,8 @@ int notmain ( void )
     while(1) if((GET32(RCC_CFGR)&0xF)==0xA) break;  // wait for 2 flags, bit [3] - PLL used as system clock (switch status, set by hardware)
                                                     //                   bit [1] - PLL selected as system clock (switch,set by hardware, sets HSI if HSE breaks)
     
+
+    // blink with frequency determined by PLL
     blinker(50000);
     
     return(0);
