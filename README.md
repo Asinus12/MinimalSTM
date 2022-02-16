@@ -27,15 +27,16 @@ $ st-flash write ./build/notmain.bin 0x08000000
 ```
 
 **Debuging**  
+- xxd build/notmain.bin  | head ... shows addresses starting at 0x00000000 and their values 
 - arm-none-eabi-nm notmain.elf ... shows assigned address of implemented function in object files
-- arm-none-eabi-objdump -t build/notmain.elf ... 
+- arm-none-eabi-objdump -t build/notmain.elf | sort ... 
 - arm-none-eabi-objdump -h build/notmain.o  ... show what sections are in our object file 
 - arm-none-eabi-objdump -t build/notmain.elf | sort ... dump symbols
 
 **References**
 - Tool Interface Standard (TIS) Executable and Linking Format (ELF) Specification Version 1.2
 - ARM Procedure Call Standard 
-- https://interrupt.memfault.com/blog/zero-to-main-1
+- https://interrupt.memfault.com/tag/zero-to-main/
 - Binutilis reference: https://sourceware.org/binutils/docs/ld/Source-Code-Reference.html
 - Memory protection unit: https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu
 

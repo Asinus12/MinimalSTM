@@ -41,6 +41,11 @@ void blinker ( unsigned int n )
     }
 }
 
+
+int a;          // loaded in bss section
+int b = 5;      // loaded in data section 
+
+
 int notmain ( void )
 {
     unsigned int ra;
