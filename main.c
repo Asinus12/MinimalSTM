@@ -42,14 +42,8 @@ void blinker ( unsigned int n )
 }
 
 
-int a;          // loaded in bss section
-int b = 5;      // loaded in data section 
 
-int addtwo(int a, int b ){
-    return a+b; 
-}
-
-int notmain ( void )
+int main ( void )
 {
     unsigned int ra;
 

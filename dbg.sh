@@ -1,8 +1,8 @@
 #!/usr/bin/sh
 
-xxd_cmd="xxd build/notmain.bin"
-nm_cmd="arm-none-eabi-nm build/notmain.elf"
-dump_cmd="arm-none-eabi-objdump -h build/notmain.elf"
+xxd_cmd="xxd build/main.bin"
+nm_cmd="arm-none-eabi-nm build/main.elf"
+dump_cmd="arm-none-eabi-objdump -h build/main.elf"
 
 echo "Running: $xxd_cmd"
 eval "$xxd_cmd"

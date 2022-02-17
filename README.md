@@ -14,30 +14,30 @@ Minimal bare-metal project for exploring and microbenchmarking STM's microcontro
 ```
 $ rm -rf build
 $ mkdir build
-$ arm-none-eabi-as --warn --fatal-warnings -mcpu=cortex-m3 flash.s -o ./build/flash.o
-$ arm-none-eabi-gcc -Wall -O2 -ffreestanding -mcpu=cortex-m3 -mthumb -c notmain.c -o ./build/notmain.o
-$ arm-none-eabi-ld -nostdlib -nostartfiles -T flash.ld ./build/flash.o ./build/notmain.o -o ./build/notmain.elf
-$ arm-none-eabi-objdump -D ./build/notmain.elf > ./build/notmain.list
-$ arm-none-eabi-objcopy -O binary ./build/notmain.elf ./build/notmain.bin
+$ arm-none-eabi-as --warn --fatal-warnings -mcpu=cortex-m3 startup.s -o ./build/startup.o
+$ arm-none-eabi-gcc -Wall -O2 -ffreestanding -mcpu=cortex-m3 -mthumb -c main.c -o ./build/main.o
+$ arm-none-eabi-ld -nostdlib -nostartfiles -T flash.ld ./build/flash.o ./build/main.o -o ./build/main.elf
+$ arm-none-eabi-objdump -D ./build/main.elf > ./build/main.list
+$ arm-none-eabi-objcopy -O binary ./build/main.elf ./build/main.bin
 ```
 
 **Flashing** 
 ```
-$ st-flash write ./build/notmain.bin 0x08000000
+$ st-flash write ./build/main.bin 0x08000000
 ```
 
 **Debuging**  
 ```
-$ xxd build/notmain.bin  | head ... shows addresses starting at 0x00000000 and their values 
-$ arm-none-eabi-nm build/notmain.elf ... shows assigned address of implemented function in object files
-$ arm-none-eabi-objdump -h build/notmain.elf  ... show sections, sizes, VMA/LMA addresses and allignment 
-$ arm-none-eabi-objdump -t build/notmain.elf | sort ... dumps symbols, addresses, and sections 
+$ xxd build/main.bin  | head ... shows addresses starting at 0x00000000 and their values 
+$ arm-none-eabi-nm build/main.elf ... shows assigned address of implemented function in object files
+$ arm-none-eabi-objdump -h build/main.elf  ... show sections, sizes, VMA/LMA addresses and allignment 
+$ arm-none-eabi-objdump -t build/main.elf | sort ... dumps symbols, addresses, and sections 
 ```
 
 **Debugging with gdb-multiarch and st-util**
 ```
   $ st-util  ... sets up a server gdb server on port (4242)
-  $ gdb-multiarch notmain.elf
+  $ gdb-multiarch main.elf
   $ target remote localhost:4242 ... in gdb
   $ b main ... sets breakpoint at main
   $ b 73 ... sets breakpoint at line 73
@@ -60,9 +60,9 @@ $ arm-none-eabi-objdump -t build/notmain.elf | sort ... dumps symbols, addresses
 - Tool Interface Standard (TIS) Executable and Linking Format (ELF) Specification Version 1.2
 - ARM Procedure Call Standard 
 - https://interrupt.memfault.com/tag/zero-to-main/
-- Binutilis reference: https://sourceware.org/binutils/docs/ld/Source-Code-Reference.html
+- Binutilis linker reference: https://sourceware.org/binutils/docs/ld/index.html
 - Memory protection unit: https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu
-
+- https://developer.arm.com/documentation/100067/0612/armclang-Integrated-Assembler/Macro-directives (armclang integrated assembler)  
 
 
 ## Linker script ## 
