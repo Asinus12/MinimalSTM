@@ -45,6 +45,9 @@ void blinker ( unsigned int n )
 int a;          // loaded in bss section
 int b = 5;      // loaded in data section 
 
+int addtwo(int a, int b ){
+    return a+b; 
+}
 
 int notmain ( void )
 {
@@ -55,9 +58,9 @@ int notmain ( void )
     /*******************************************************/
 
     // turn on High Speed External oscillator (8Mhz xtal)
-    ra = GET32(RCC_CR);                           // get register 
+    ra = GET32(RCC_CR);                           // get register (ldr r0,[r0], bx lr)
     ra |= 1 << 16;                                // set bit 16 (HSEON)
-    PUT32(RCC_CR,ra);                             // put back modified value  
+    PUT32(RCC_CR,ra);                             // put back modified value (str r1,   [r0], bx lr)
     while(1) if(GET32(RCC_CR) & (1<<17)) break;   // wait for ready flag (bit 17 HSERDY)
     
     // select HSE as system clock

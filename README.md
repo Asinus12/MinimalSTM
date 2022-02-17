@@ -27,11 +27,34 @@ $ st-flash write ./build/notmain.bin 0x08000000
 ```
 
 **Debuging**  
-- xxd build/notmain.bin  | head ... shows addresses starting at 0x00000000 and their values 
-- arm-none-eabi-nm notmain.elf ... shows assigned address of implemented function in object files
-- arm-none-eabi-objdump -t build/notmain.elf | sort ... 
-- arm-none-eabi-objdump -h build/notmain.o  ... show what sections are in our object file 
-- arm-none-eabi-objdump -t build/notmain.elf | sort ... dump symbols
+```
+$ xxd build/notmain.bin  | head ... shows addresses starting at 0x00000000 and their values 
+$ arm-none-eabi-nm build/notmain.elf ... shows assigned address of implemented function in object files
+$ arm-none-eabi-objdump -h build/notmain.elf  ... show sections, sizes, VMA/LMA addresses and allignment 
+$ arm-none-eabi-objdump -t build/notmain.elf | sort ... dumps symbols, addresses, and sections 
+```
+
+**Debugging with gdb-multiarch and st-util**
+```
+  $ st-util  ... sets up a server gdb server on port (4242)
+  $ gdb-multiarch notmain.elf
+  $ target remote localhost:4242 ... in gdb
+  $ b main ... sets breakpoint at main
+  $ b 73 ... sets breakpoint at line 73
+  $ continue
+  $ next .. dont dive 
+  $ step .. dive into 
+  $ finish ... continue until current fucntion returns 
+  $ info line * 0x08000000 ... disassembly of memory location
+  $ info mem 
+  $ info threads
+  $ display, undisplay <num>
+  $ i r ... shows general purpose registers with CSPR 
+  $ backtrace full
+  $ kill run
+```    
+
+
 
 **References**
 - Tool Interface Standard (TIS) Executable and Linking Format (ELF) Specification Version 1.2
@@ -50,65 +73,31 @@ Linker script is responsible for:
     - Options: commands to specify architecture, entry point, …etc. if needed
     - Symbols: variables to inject into the program at link time
 
-
+- ENTRY(symbol) ... first instruction that executes in a program is called a entry point, argument is a symbol name.
+- LONG(addr) ... stores four byte value of symbol addr, location counter is increased, inside the section! (BYTE(1) SHORT(2) LONG(4) QUAD(8))
 - Do not use \DISCARD\ for any sections, its a reserved keyword! 
-- .vector sections contains functions we want to KEEP at the start of the .text sections
-  so that Reset_Hanlder is where the MCU expects it to be 
 - NOLOAD ... section is loaded with noload property (only property in modern linker scripts)
-- ALIGN sets a special variable "location counter"
-- STACK has also noload property (beacaue its in ram), has no sysmbols so we have to define size and
-  align on 8-byte boundary (ARM procedure call standard) 
-- Every section in our linker script has two addresses, its load address (LMA) and its virtual address (VMA). 
+- ALIGN sets a special variable "location counter".  
+- (LMA) load memory address, (VMA) virtual memory address.  
+  } > ram AT > rom  // "> ram" is the VMA, "> rom" is the LMA 
   In a firmware context, the LMA is where your JTAG loader needs to place the section and the VMA
   is where the section is found during execution.
 - (.) represents the value of the location counter 
 
-  ...} > ram AT > rom  // "> ram" is the VMA, "> rom" is the LMA 
 
-**linker script template**
+
+**linker script section anatomy**
 ```
-MEMORY
-{
-  rom      (rx)  : ORIGIN = 0x00000000, LENGTH = 0x00040000
-  ram      (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00008000
-}
-
-STACK_SIZE = 0x2000;
-
-/* Section Definitions */
-SECTIONS
-{
-    /* data, code */
-    .text :
-    {
-        KEEP(*(.vectors .vectors.*))
-        *(.text*)
-        *(.rodata*)
-    } > rom
-
-    /* uninitialized data */
-    .bss (NOLOAD) :
-    {
-        *(.bss*)
-        *(COMMON)
-    } > ram
-
-    /* initialized data */
-    .data :
-    {
-        *(.data*);
-    } > ram AT >rom
-
-    /* stack section */
-    .stack (NOLOAD):
-    {
-        . = ALIGN(8);
-        . = . + STACK_SIZE;
-        . = ALIGN(8);
-    } > ram
-
-    _end = . ;
-}
+section [address] [(type)] :
+  [AT(lma)]
+  [ALIGN(section_align) | ALIGN_WITH_INPUT]
+  [SUBALIGN(subsection_align)]
+  [constraint]
+  {
+    output-section-command
+    output-section-command
+    …
+  } [>region] [AT>lma_region] [:phdr :phdr …] [=fillexp] [,]
 ```
 
 
@@ -116,7 +105,12 @@ SECTIONS
 
 ## Assembly startup file ##
 
-todo
+**Instructions** 
+```
+ldr r0, =_sdata ... loads r0 with symbol 
+adds r1, r1, #4 .. loads r1 with value from address [r1+4] (relative addressing)
+bcc CopyDataInit ... Branch if Carry Clear
+```
 
 ## Bootloader ##
 
@@ -126,7 +120,24 @@ todo
 **The goal of our bootloader is:**
 - Execute on MCU boot  
 - Jump to applicaton code   
-- It must end on a flash sector boundary 
+
+
+
+16kB reserved for bootloader ( it must end on a flash boundary region)  
+```
+        0x0 +---------------------+
+            |                     |
+            |     Bootloader      |
+            |                     |
+     0x4000 +---------------------+
+            |                     |
+            |                     |
+            |     Application     |
+            |                     |
+            |                     |
+    0x30000 +---------------------+
+
+```
 
 ```
 /* memory_map.ld */

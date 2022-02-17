@@ -12,13 +12,13 @@ SECTIONS
 {
     .text :                 /* code, data */
     { 
-        KEEP(*(.vector*))   /* .vector section contains function we want to keep */
-                            /* at the very start of .text section so reset handler can find them */
+        KEEP(*(.vector*))   /* .vector section (defined in flash.s) contains function we want to keep */
+                            /* at the very start of .text (flash) so reset handler can find them */
         *(.text*)           /* wildcard * means we want all .text section in all files */
     } > rom
 
 
-    .bss (NOLOAD) :         /* uninitialized data, ram is not loaded with anything! */ 
+    .bss (NOLOAD) :         /* bss = uninitialized data, ram is not loaded with anything! */ 
     {
         _sbss = . ;         /* symbol = location counter, makes section address avaliable from code */
         *(.bss*)
@@ -37,9 +37,9 @@ SECTIONS
 
     .stack (NOLOAD) :
     {
-        . = ALIGN(8);
+        . = ALIGN(4);
         . = . + STACK_SIZE;
-        . = ALIGN(8);
+        . = ALIGN(4);
     } > ram
 
 
