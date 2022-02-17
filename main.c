@@ -78,7 +78,7 @@ int main ( void )
     PUT32(GPIOC+GPIOX_CRH,ra);                      // put back modified value 
 
     // blink with frequency determined by HSE 
-    blinker(5);
+    blinker(3);
 
 
     /*******************************************************/
