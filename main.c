@@ -43,8 +43,18 @@ void blinker ( unsigned int n )
 
 
 
+
+
+int ga = 1;                             // .data section
+int gx;                                 // .bss section
+int myadd(int a, int b) { return a+b;}; // .text section
+
+
+
 int main ( void )
 {
+
+    // variables define here dont go to any section
     unsigned int ra;
 
     /*******************************************************/

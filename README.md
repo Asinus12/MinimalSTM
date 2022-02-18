@@ -57,32 +57,35 @@ $ arm-none-eabi-objdump -t build/main.elf | sort ... dumps symbols, addresses, a
 
 
 **References**
+- Linker script reference: https://sourceware.org/binutils/docs/ld/index.html
+- Assembly directives (armclang): https://developer.arm.com/documentation/100067/0612/armclang-Integrated-Assembler/Macro-directives 
 - Tool Interface Standard (TIS) Executable and Linking Format (ELF) Specification Version 1.2
 - ARM Procedure Call Standard 
 - https://interrupt.memfault.com/tag/zero-to-main/
-- Binutilis linker reference: https://sourceware.org/binutils/docs/ld/index.html
 - Memory protection unit: https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu
-- https://developer.arm.com/documentation/100067/0612/armclang-Integrated-Assembler/Macro-directives (armclang integrated assembler)  
 
 
 ## Linker script ## 
 
-Linker script is responsible for:
-    - Memory layout: what memory is available where
-    - Section definitions: what part of a program should go where
-    - Options: commands to specify architecture, entry point, …etc. if needed
-    - Symbols: variables to inject into the program at link time
+Linker script is responsible for:  
+    - **Memory layout**: what memory is available where  
+    - **Section definitions**: what part of a program should go where  
+    - **Options**: commands to specify architecture, entry point, …etc. if needed  
+    - **Symbols**: variables to inject into the program at link time  
 
+**Explanation of used keywords**
+- PROVIDE(symbol = expression) ... provide keyword may be used to define a symbol, such as      'etext', only if its referenced but not defined  
+- HIDDEN(symbol = expression) ... for ELF targeted ports, symbol will be hidden and not exported
 - ENTRY(symbol) ... first instruction that executes in a program is called a entry point, argument is a symbol name.
 - LONG(addr) ... stores four byte value of symbol addr, location counter is increased, inside the section! (BYTE(1) SHORT(2) LONG(4) QUAD(8))
-- Do not use \DISCARD\ for any sections, its a reserved keyword! 
-- NOLOAD ... section is loaded with noload property (only property in modern linker scripts)
+- NOLOAD ... section is loaded with noload property (such as ram)
 - ALIGN sets a special variable "location counter".  
 - (LMA) load memory address, (VMA) virtual memory address.  
   } > ram AT > rom  // "> ram" is the VMA, "> rom" is the LMA 
   In a firmware context, the LMA is where your JTAG loader needs to place the section and the VMA
   is where the section is found during execution.
 - (.) represents the value of the location counter 
+- Do not use \DISCARD\ for any sections, its a reserved keyword!
 
 
 

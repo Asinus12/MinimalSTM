@@ -12,8 +12,7 @@ SECTIONS
 {
     .text :                 /* code, data */
     { 
-        KEEP(*(.vector*))   /* .vector section (defined in startup.s) contains function we want to keep */
-                            /* at the very start of .text (flash) so reset handler can find them */
+        KEEP(*(.vector*))   /* keep .vector section at begining of flash  */
         *(.text*)           /* wildcard * means we want all .text section in all files */
     } > rom
 
