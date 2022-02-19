@@ -126,6 +126,9 @@ bcc CopyDataInit ... Branch if Carry Clear
 
 
 
+
+Make sure that a CPU is in privileged mode  
+
 16kB reserved for bootloader ( it must end on a flash boundary region)  
 ```
         0x0 +---------------------+

@@ -21,12 +21,16 @@
 
 
 
-
+// Assembly functions
 void PUT32 ( unsigned int, unsigned int );
 unsigned int GET32 ( unsigned int );
 void DUMMY ( unsigned int );
+void LOOP (void);
+void LEDON(void);
+void LEDOFF(void);
+void LOOP(void);
 
-
+// C functions 
 void blinker ( unsigned int n )
 {
     unsigned int i,j = 0;
@@ -54,7 +58,7 @@ int myadd(int a, int b) { return a+b;}; // .text section
 int main ( void )
 {
 
-    // variables define here dont go to any section
+    // variables define go to stack and are not visible in dissasembly
     unsigned int ra;
 
     /*******************************************************/
@@ -90,7 +94,6 @@ int main ( void )
     // blink with frequency determined by HSE 
     blinker(3);
 
-
     /*******************************************************/
     /**************** Blinker with PLL**********************/
     /*******************************************************/
@@ -114,7 +117,7 @@ int main ( void )
     PUT32(RCC_CR,ra);                           // write back modified value
     while(1) if(GET32(RCC_CR)&(1<<25)) break;   // wait for ready flag (bit 25 PLLRDY)
 
-    PUT32(FLASH_ACR,0x2);                       // flash memory interface 0x40022000-0x400223FF 
+    //PUT32(FLASH_ACR,0x2);                       // flash memory interface 0x40022000-0x400223FF 
 
     ra = GET32(RCC_CFGR);                           // get register 
     ra &= ~(0x3<<0);                                // clear bits [1:0] (system clock switch)
@@ -124,11 +127,24 @@ int main ( void )
                                                     //                   bit [1] - PLL selected as sysclk (switch set by hw, sets HSI if HSE breaks)
     
     // blink with frequency determined by PLL
-    blinker(50000);
+    blinker(3);
+
+
+
+    /*
+    int j = 3;
+    int i = 2000000;
+    while(j--){
+        LEDON();
+        i = 2000000;
+        while(i--) DUMMY(i);
+        LEDOFF();
+        i = 2000000;
+        while(i--) DUMMY(i);
+    }
+    */
+ 
     
-
-
-
     while(1);
     return(0);
 }
