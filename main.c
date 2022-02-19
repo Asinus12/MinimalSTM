@@ -117,7 +117,7 @@ int main ( void )
     PUT32(RCC_CR,ra);                           // write back modified value
     while(1) if(GET32(RCC_CR)&(1<<25)) break;   // wait for ready flag (bit 25 PLLRDY)
 
-    //PUT32(FLASH_ACR,0x2);                       // flash memory interface 0x40022000-0x400223FF 
+    PUT32(FLASH_ACR,0x2);                       // flash memory interface 0x40022000-0x400223FF 
 
     ra = GET32(RCC_CFGR);                           // get register 
     ra &= ~(0x3<<0);                                // clear bits [1:0] (system clock switch)
@@ -127,7 +127,7 @@ int main ( void )
                                                     //                   bit [1] - PLL selected as sysclk (switch set by hw, sets HSI if HSE breaks)
     
     // blink with frequency determined by PLL
-    blinker(3);
+    blinker(30000);
 
 
 
@@ -145,6 +145,5 @@ int main ( void )
     */
  
     
-    while(1);
     return(0);
 }

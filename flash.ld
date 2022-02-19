@@ -12,7 +12,6 @@ SECTIONS
 {
     .text :                 /* code, data */
     { 
-        KEEP(*(.vector*))   /* keep .vector section at begining of flash  */
         *(.text*)           /* wildcard * means we want all .text section in all files */
     } > rom
 
