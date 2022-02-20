@@ -1,12 +1,21 @@
-/* both .global and .globl are accepted for compatibility */
+/* startup.s (as - GNU Assembler) https://docs.huihoo.com/redhat/rhel-4-docs/rhel-as-en-4/index.html */
+/* @ ... can be used as a comment that extends to the end of the line */
+/* ; ... can be used instead of a newline */
+/* #, $ ... indicated immediate operand */
+/* .thumb ... Performs the same action .code 16 */
+/* .globl ... both .global and .globl are accepted for compatibility */
+/* .thumb_func ... this directive specifies that the following symbol is the name of a Thumb encoded function */
 
-.thumb
+.thumb                      
 .thumb_func
 
 .global _start
 _start:
 
 stacktop: .word 0x20001000
+
+
+
 
 .word reset
 .thumb_func
@@ -15,8 +24,8 @@ reset:
     b .
 
 
-.thumb_func
-.globl PUT32
+.thumb_func               
+.globl PUT32                
 PUT32:
     str r1,[r0]
     bx lr
@@ -51,3 +60,13 @@ LEDOFF:
     ldr r3, =0x20000000
     str r3, [r1]
     bx lr
+
+.thumb_func
+.globl LOOP
+LOOP:
+   ldr r7,=0x200000
+label:
+   sub r7,#1
+   bne label
+   bx lr      
+

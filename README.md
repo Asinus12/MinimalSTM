@@ -62,7 +62,15 @@ $ arm-none-eabi-objdump -t build/main.elf | sort ... dumps symbols, addresses, a
 - Tool Interface Standard (TIS) Executable and Linking Format (ELF) Specification Version 1.2
 - ARM Procedure Call Standard 
 - https://interrupt.memfault.com/tag/zero-to-main/
-- Memory protection unit: https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu
+- Memory protection unit: https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu  
+- GNU assembler : https://docs.huihoo.com/redhat/rhel-4-docs/rhel-as-en-4/index.html
+
+
+
+## CORTEX M3 BOOT ## 
+- CortexM3 can only boot from 0x0 from reset! However vector table can be relocated during program execution by writing to VTOR (0xE000ED08)  
+- Boot-up of C-M3 is different to traditional ARM cores, in that the first fetch from address 0x0 is the initial value of the SP, the second value is reset vector, i.e. the starting address of program code.  
+- Vector table entries for Cortex-M3 are address values and not branch instructions like traditional ARM cores.
 
 
 ## Linker script ## 

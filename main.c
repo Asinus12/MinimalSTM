@@ -27,6 +27,7 @@ unsigned int GET32 ( unsigned int );
 void DUMMY ( unsigned int );
 void LEDON(void);
 void LEDOFF(void);
+void LOOP(void);
 
 // C functions 
 void blinker ( unsigned int n )
@@ -44,13 +45,9 @@ void blinker ( unsigned int n )
 }
 
 
-
-
-
-int ga = 1;                             // .data section
-int gx;                                 // .bss section
-int myadd(int a, int b) { return a+b;}; // .text section
-
+// int ga = 1;                             // .data section
+// int gx;                                 // .bss section
+// int myadd(int a, int b) { return a+b;}; // .text section
 
 
 int main ( void )
@@ -134,17 +131,18 @@ int main ( void )
 
     
     int j = 3;
-    int i = 2000000;
     while(j--){
         LEDON();
-        i = 2000000;
-        while(i--) DUMMY(i);
+        LOOP();
         LEDOFF();
-        i = 2000000;
-        while(i--) DUMMY(i);
+        LOOP();
     }
+
+    LOOP();
     
  
-    
+    blinker(5);
+
+
     return(0);
 }
