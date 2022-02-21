@@ -2,9 +2,13 @@
 /* @ ... can be used as a comment that extends to the end of the line */
 /* ; ... can be used instead of a newline */
 /* #, $ ... indicated immediate operand */
-/* .thumb ... Performs the same action .code 16 */
+/* .thumb ... Performs the same action .code 16,  */
+/* .thumb indicates T32 with UAL-ARM syntax */
 /* .globl ... both .global and .globl are accepted for compatibility */
 /* .thumb_func ... this directive specifies that the following symbol is the name of a Thumb encoded function */
+
+
+
 
 .thumb                      
 .thumb_func
@@ -12,8 +16,9 @@
 .global _start
 _start:
 
-stacktop: .word 0x20001000
-
+/* Highest address of the user mode stack */
+/* _estack = 0x20005000;    /* end of RAM */
+stacktop: .word 0x20005000
 
 
 

@@ -45,9 +45,13 @@ void blinker ( unsigned int n )
 }
 
 
-// int ga = 1;                             // .data section
-// int gx;                                 // .bss section
-// int myadd(int a, int b) { return a+b;}; // .text section
+
+// implement inline assembly! 
+int ga = 1;                             // .data section
+int gx;                                 // .bss section
+int myadd(int a, int b, int c, int d) { // .text section
+   return a+b+c+d;
+}
 
 
 int main ( void )
@@ -138,7 +142,6 @@ int main ( void )
         LOOP();
     }
 
-    LOOP();
     
  
     blinker(5);

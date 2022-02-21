@@ -1,6 +1,6 @@
+/* location counter (.) only appears inside sections, allways tracks VMA */
 
-
-STACK_SIZE = 0x200; /* 512 B */
+STACK_SIZE = 0x80; /* 128   */
 
 MEMORY
 {
@@ -33,13 +33,14 @@ SECTIONS
     } > ram AT >rom         /* "> ram" is the VMA, "> rom" is the LMA */
 
 
+
     .stack (NOLOAD) :
     {
         . = ALIGN(4);
         . = . + STACK_SIZE;
         . = ALIGN(4);
     } > ram
-
+    
 
 
 

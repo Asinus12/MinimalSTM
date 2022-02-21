@@ -1,50 +1,59 @@
 
 # MinimalSTM #    
-Minimal bare-metal project for exploring and microbenchmarking STM's microcontrollers. 
+**Minimal bare-metal project for exploring Cortex-MR architecture**  
+Project is built on  STM32F103C8T6 (RM0041) medium density device with 20KiB SRAM, 64KiB Flash.
 
+**References**
+- Linker script reference: https://sourceware.org/binutils/docs/ld/index.html
+- Assembly directives (armclang): https://developer.arm.com/documentation/100067/0612/armclang-Integrated-Assembler/Macro-directives 
+- Tool Interface Standard (TIS) Executable and Linking Format (ELF) Specification Version 1.2
+- ARM Procedure Call Standard 
+- https://interrupt.memfault.com/tag/zero-to-main/
+- Memory protection unit: https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu  
+- GNU assembler directives : https://docs.huihoo.com/redhat/rhel-4-docs/rhel-as-en-4/index.html
 
-## Building and dependancies  ## 
-- Project is built on  STM32F103C8T6 (Bluepill) medium density device with 20KiB SRAM, 64KiB Flash (1Kib pages)
-- STM reference manual RM0041 STM32F100xx
-- For building executables and binaries you need to have ***arm-none-eabi*** installed  
-- For uploading to MCU you need ***st-link*** or other flashig tool installed (STM flash utility etc)   
-
-
-**Building**
+**Building:**
 ```
-$ rm -rf build
-$ mkdir build
-$ arm-none-eabi-as --warn --fatal-warnings -mcpu=cortex-m3 startup.s -o ./build/startup.o
-$ arm-none-eabi-gcc -Wall -O2 -ffreestanding -mcpu=cortex-m3 -mthumb -c main.c -o ./build/main.o
-$ arm-none-eabi-ld -nostdlib -nostartfiles -T flash.ld ./build/flash.o ./build/main.o -o ./build/main.elf
-$ arm-none-eabi-objdump -D ./build/main.elf > ./build/main.list
-$ arm-none-eabi-objcopy -O binary ./build/main.elf ./build/main.bin
+sudo ./run.sh
 ```
-
-**Flashing** 
+**Uploading**
 ```
 $ st-flash write ./build/main.bin 0x08000000
 ```
 
-**Debuging**  
+**Dumping object files (.o, .elf)**  
 ```
-$ xxd build/main.bin  | head ... shows addresses starting at 0x00000000 and their values 
-$ arm-none-eabi-nm build/main.elf ... shows assigned address of implemented function in object files
-$ arm-none-eabi-objdump -h build/main.elf  ... show sections, sizes, VMA/LMA addresses and allignment 
-$ arm-none-eabi-objdump -t build/main.elf | sort ... dumps symbols, addresses, and sections 
+$ xxd build/main.elf
+```
+```
+$ arm-none-eabi-nm build/main.elf 
+```
+```
+$ arm-none-eabi-objdump -h build/main.elf 
+```
+```
+$ arm-none-eabi-objdump -t build/main.elf | sort 
 ```
 
 **Debugging with gdb-multiarch and st-util**
+
+Set up a gdb server (default port 4242):  
 ```
-  $ st-util  ... sets up a server gdb server on port (4242)
+  $ st-util  
+```
+
+Run gdb-multiarch and connect to server:  
+```
   $ gdb-multiarch main.elf
-  $ target remote localhost:4242 ... in gdb
-  $ b main ... sets breakpoint at main
-  $ b 73 ... sets breakpoint at line 73
-  $ continue
-  $ next .. dont dive 
-  $ step .. dive into 
+  $ (gdb) target remote localhost:4242
+```
+GDB commands:
+```
+  $ layout next ... changes perspective 
+  $ b main (b 73) ... sets breakpoint at main (line 73)
+  $ continue, next(dont dive), step(dive)
   $ finish ... continue until current fucntion returns 
+
   $ info line * 0x08000000 ... disassembly of memory location
   $ info mem 
   $ info threads
@@ -56,24 +65,35 @@ $ arm-none-eabi-objdump -t build/main.elf | sort ... dumps symbols, addresses, a
 
 
 
-**References**
-- Linker script reference: https://sourceware.org/binutils/docs/ld/index.html
-- Assembly directives (armclang): https://developer.arm.com/documentation/100067/0612/armclang-Integrated-Assembler/Macro-directives 
-- Tool Interface Standard (TIS) Executable and Linking Format (ELF) Specification Version 1.2
-- ARM Procedure Call Standard 
-- https://interrupt.memfault.com/tag/zero-to-main/
-- Memory protection unit: https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu  
-- GNU assembler : https://docs.huihoo.com/redhat/rhel-4-docs/rhel-as-en-4/index.html
+
 
 
 
 ## CORTEX M3 BOOT ## 
-- CortexM3 can only boot from 0x0 from reset! However vector table can be relocated during program execution by writing to VTOR (0xE000ED08)  
-- Boot-up of C-M3 is different to traditional ARM cores, in that the first fetch from address 0x0 is the initial value of the SP, the second value is reset vector, i.e. the starting address of program code.  
-- Vector table entries for Cortex-M3 are address values and not branch instructions like traditional ARM cores.
+
+- CortexM3 can only boot from 0x0 from reset! However vector table can be relocated during program execution by writing to VTOR (0xE000ED08). Note that vector table entries for Cortex-M3 are address values and not branch instructions like traditional ARM cores. (ARMDeveloper)  
+- Boot-up of C-M3 is different to traditional ARM cores, in that the first fetch from address 0x0 is the initial value of the SP, the second value is reset handler, i.e. the starting address of program code.  
+ 
+
+Boot modes depend on voltages on pin BOOT1 and BOOT0: 
+```    
+BOOT1     BOOT0         Boot mode:  
+  x         0             main flash  
+  0         1             system memory (bootloader)  
+  1         1             sram  
+```    
+
+CPU:  
+1) Reads BOOT0 and BOOT1 to determine boot mode 
+2) Fetches MSP address from address 0x00000000 (_estack)
+3) Fetches PC from address 0x00000004, PC always holds the address of the next instruction to be exectued! (Reset_handler). Note that LSB of Reset_handler address indicates thumb mode and is always 1. 
+4) Reset_Handler initializes data and bss segment, initializes some hardware and calls the maing function. 
 
 
-## Linker script ## 
+
+
+
+## LINKER SCRIPT (flash.ld) ## 
 
 Linker script is responsible for:  
     - **Memory layout**: what memory is available where  
@@ -93,7 +113,7 @@ Linker script is responsible for:
   In a firmware context, the LMA is where your JTAG loader needs to place the section and the VMA
   is where the section is found during execution.
 - (.) represents the value of the location counter 
-- Do not use \DISCARD\ for any sections, its a reserved keyword!
+- Do not use \DISCARD\ for any sections, its a reserved keyword!  
 
 
 
@@ -114,7 +134,28 @@ section [address] [(type)] :
 
 
 
-## Assembly startup file ##
+## ASSEMBLY STARTUP FILE (startup.s) ##
+- Written in UAL-ARM assembly  
+
+Example ADD(register): developer.arm.com  
+```
+ADD{S}<c><q>  {<Rd>,} <Rn>, <Rm> {,<shift>}
+
+15  14  13  12  11  10  09  08  07  06  05  04  03  02  01
+ 0   0   0   1   1   0   0  Rm          Rn          Rd
+```
+
+- ```{ } ```... optional fields
+- ``` |``` ... alternative character string, LDM|STM is either LDM or STM  
+- ```*``` ... when used in a commbination like ```<immed_8> * 4```, the value must be a multiple of 4 in the range 4*0=0 to 4*255=1020  
+- ```<c>```... condition under which the instruction is executed, if ommited defaults to AL
+- ```<q>```... qualifier can be either .N (narrow), or .W (wide)
+- ```Rd``` ... destination register, if ommited is same as Rn
+- ```Rn``` ... first operand 
+- ```Rm``` ... second operand also optionally shifted register 
+- ```<shift>``` ... shift to apply to the value read from ```Rm```
+
+
 
 **Instructions** 
 ```
@@ -123,7 +164,7 @@ adds r1, r1, #4 .. loads r1 with value from address [r1+4] (relative addressing)
 bcc CopyDataInit ... Branch if Carry Clear
 ```
 
-## Bootloader ##
+## BOOTLOADER ##
 
   Bootloader's job is to copy code from non-executable storage (SPI flash, flash) to executable storage (RAM),  
   it can contain firmware update logic so device can recover from a bug and also offers bigger security  (cryptographic signature)
