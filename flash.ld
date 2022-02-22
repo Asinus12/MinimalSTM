@@ -9,28 +9,29 @@ MEMORY
 }
 
 SECTIONS
-{
-    .text :                 /* code, data */
+{   
+    /* code, data */
+    .text :                 
     { 
         *(.text*)           /* wildcard * means we want all .text section in all files */
     } > rom
 
-
-    .bss (NOLOAD) :         /* bss = uninitialized data, ram is not loaded with anything! */ 
+    /* uninitialized data */ 
+    .bss (NOLOAD) :         
     {
-        _sbss = . ;         /* symbol = location counter, makes section address avaliable from code */
+        _sbss = . ;         
         *(.bss*)
         *(COMMON)           /* int foo goes here but static int foo does not */
         _ebss = . ;         /* access _ebss symbol from code ... uint8_t *data_byte = &_sdata; */
     } > ram
 
-
-    .data :                 /* initializeed static varibles copied from rom before main is called */
+    /* initializeed static varibles*/
+    .data :                 
     {
         _sdata = . ;
         *(.data*);
         _edata = . ;
-    } > ram AT >rom         /* "> ram" is the VMA, "> rom" is the LMA */
+    } > ram AT >rom         /* "VMA AT LMA */
 
 
 

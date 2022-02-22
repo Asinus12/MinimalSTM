@@ -1,16 +1,9 @@
 
 # MinimalSTM #    
-**Minimal bare-metal project for exploring Cortex-MR architecture**  
+**Minimal bare-metal project for exploring Cortex-M3 architecture**  
 Project is built on  STM32F103C8T6 (RM0041) medium density device with 20KiB SRAM, 64KiB Flash.
 
-**References**
-- Linker script reference: https://sourceware.org/binutils/docs/ld/index.html
-- Assembly directives (armclang): https://developer.arm.com/documentation/100067/0612/armclang-Integrated-Assembler/Macro-directives 
-- Tool Interface Standard (TIS) Executable and Linking Format (ELF) Specification Version 1.2
-- ARM Procedure Call Standard 
-- https://interrupt.memfault.com/tag/zero-to-main/
-- Memory protection unit: https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu  
-- GNU assembler directives : https://docs.huihoo.com/redhat/rhel-4-docs/rhel-as-en-4/index.html
+
 
 **Building:**
 ```
@@ -49,7 +42,7 @@ Run gdb-multiarch and connect to server:
 ```
 GDB commands:
 ```
-  $ layout next ... changes perspective 
+  $ layout next ... changes perspective s
   $ b main (b 73) ... sets breakpoint at main (line 73)
   $ continue, next(dont dive), step(dive)
   $ finish ... continue until current fucntion returns 
@@ -64,8 +57,20 @@ GDB commands:
 ```    
 
 
-
-
+V
+**References**
+- Linker script reference:  
+  https://sourceware.org/binutils/docs/ld/index.html  
+- Assembly directives (armclang):  
+  https://developer.arm.com/documentation/100067/0612/armclang-Integrated-Assembler/Macro-directives  
+- Tool Interface Standard (TIS) Executable and Linking Format (ELF) Specification Version 1.2  
+  https://refspecs.linuxfoundation.org/elf/elf.pdf  
+- ARM Procedure Call Standard 
+- https://interrupt.memfault.com/tag/zero-to-main/
+- Memory protection unit: 
+  https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu  
+- GNU assembler directives:  
+  https://docs.huihoo.com/redhat/rhel-4-docs/rhel-as-en-4/index.html
 
 
 
@@ -87,7 +92,7 @@ CPU:
 1) Reads BOOT0 and BOOT1 to determine boot mode 
 2) Fetches MSP address from address 0x00000000 (_estack)
 3) Fetches PC from address 0x00000004, PC always holds the address of the next instruction to be exectued! (Reset_handler). Note that LSB of Reset_handler address indicates thumb mode and is always 1. 
-4) Reset_Handler initializes data and bss segment, initializes some hardware and calls the maing function. 
+4) Reset_Handler initializes data and bss segment, initializes some hardware and calls the main function. 
 
 
 
@@ -159,6 +164,9 @@ ADD{S}<c><q>  {<Rd>,} <Rn>, <Rm> {,<shift>}
 
 **Instructions** 
 ```
+cbz r0, 08000084 ... Compares a value in r0 with Zero and Branches to constant
+orr.w r1, r1, #1 ... Bitwise OR of a register value and an immediate value, and writes the result to the destination register, .w means wide (r1 = r1 | 0x1)
+
 ldr r0, =_sdata ... loads r0 with symbol 
 adds r1, r1, #4 .. loads r1 with value from address [r1+4] (relative addressing)
 bcc CopyDataInit ... Branch if Carry Clear

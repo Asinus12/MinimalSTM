@@ -45,20 +45,22 @@ void blinker ( unsigned int n )
 }
 
 
+extern int krneki;
+
 
 // implement inline assembly! 
-int ga = 1;                             // .data section
-int gx;                                 // .bss section
-int myadd(int a, int b, int c, int d) { // .text section
-   return a+b+c+d;
+unsigned int i = 3;                              // .data section
+unsigned int ra;                                 // .bss section
+int myincr(int a) {                               // .text section     
+   return a+1;
 }
+
 
 
 int main ( void )
 {
 
-    // variables define go to stack and are not visible in dissasembly
-    unsigned int ra;
+    // variables defined here go to stack and are not visible in dissasembly
 
     /*******************************************************/
     /**************** BLINKER WITH HSE *********************/
@@ -133,7 +135,6 @@ int main ( void )
 
 
 
-    
     int j = 3;
     while(j--){
         LEDON();
