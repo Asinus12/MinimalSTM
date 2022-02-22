@@ -9,9 +9,15 @@ Project is built on  STM32F103C8T6 (RM0041) medium density device with 20KiB SRA
 ```
 sudo ./run.sh
 ```
+```
+make 
+```
 **Uploading**
 ```
 $ st-flash write ./build/main.bin 0x08000000
+```
+```
+make flash
 ```
 
 **Dumping object files (.o, .elf)**  
