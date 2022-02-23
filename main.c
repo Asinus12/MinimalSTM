@@ -29,6 +29,9 @@ void LEDON(void);
 void LEDOFF(void);
 void LOOP(void);
 
+// Assembly data 
+extern const int ITERATIONS;
+
 // C functions 
 void blinker ( unsigned int n )
 {
@@ -45,16 +48,11 @@ void blinker ( unsigned int n )
 }
 
 
-extern int krneki;
-
 
 // implement inline assembly! 
 unsigned int i = 3;                              // .data section
 unsigned int ra;                                 // .bss section
-int myincr(int a) {                               // .text section     
-   return a+1;
-}
-
+int myincr(int a) { return a+1; };                 // .text section     
 
 
 int main ( void )
@@ -135,7 +133,8 @@ int main ( void )
 
 
 
-    int j = 3;
+
+    int j = 2; //(int) ITERATIONS;
     while(j--){
         LEDON();
         LOOP();
@@ -143,9 +142,8 @@ int main ( void )
         LOOP();
     }
 
-    
  
-    blinker(5);
+    blinker(3);
 
 
     return(0);

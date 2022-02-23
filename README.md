@@ -22,16 +22,17 @@ make flash
 
 **Dumping object files (.o, .elf)**  
 ```
-$ xxd build/main.elf
+$ xxd build/minimalSTM.elf
 ```
 ```
-$ arm-none-eabi-nm build/main.elf 
+$ arm-none-eabi-nm build/minimalSTM.elf 
+```
+Shows sections, sizes VMAs and LMAs 
+```
+$ arm-none-eabi-objdump -h build/minimalSTM.elf 
 ```
 ```
-$ arm-none-eabi-objdump -h build/main.elf 
-```
-```
-$ arm-none-eabi-objdump -t build/main.elf | sort 
+$ arm-none-eabi-objdump -t build/minimalSTM.elf | sort 
 ```
 
 **Debugging with gdb-multiarch and st-util**
@@ -43,7 +44,7 @@ Set up a gdb server (default port 4242):
 
 Run gdb-multiarch and connect to server:  
 ```
-  $ gdb-multiarch main.elf
+  $ gdb-multiarch minimalSTM.elf
   $ (gdb) target remote localhost:4242
 ```
 GDB commands:
@@ -76,7 +77,9 @@ V
 - Memory protection unit: 
   https://interrupt.memfault.com/blog/fix-bugs-and-secure-firmware-with-the-mpu  
 - GNU assembler directives:  
-  https://docs.huihoo.com/redhat/rhel-4-docs/rhel-as-en-4/index.html
+  https://docs.huihoo.com/redhat/rhel-4-docs/rhel-as-en-4/index.html  
+- Simulation of assembly instructions:  
+  https://azeria-labs.com/memory-instructions-load-and-store-part-4/  
 
 
 

@@ -9,17 +9,11 @@
 
 
 
-
 .thumb                      
 .thumb_func
 
-.global _start
-_start:
-
-/* Highest address of the user mode stack */
-/* _estack = 0x20005000;    /* end of RAM */
-stacktop: .word 0x20005000
-
+.globl ITERATIONS   /* export to C */
+ITERATIONS: .word 2
 
 
 .word reset
@@ -52,7 +46,7 @@ DUMMY:
 .thumb_func
 .globl LEDON
 LEDON:
-    ldr r1, =0x40011010 
+    ldr r1, =PC13_BSRR 
     ldr r3, =0x2000
     str r3, [r1]
     bx lr
@@ -61,7 +55,7 @@ LEDON:
 .thumb_func
 .globl LEDOFF
 LEDOFF: 
-    ldr r1, =0x40011010 
+    ldr r1, =PC13_BSRR 
     ldr r3, =0x20000000
     str r3, [r1]
     bx lr
@@ -75,3 +69,10 @@ label:
    bne label
    bx lr      
 
+
+.section	.isr_vector,"a",%progbits
+    .type	vector_table, %object
+    .size	vector_table, .-vector_table
+vector_table:
+	.word	_endstack
+	.word	reset
