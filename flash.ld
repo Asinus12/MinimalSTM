@@ -20,7 +20,7 @@ SECTIONS
     {
         _svector = . ;
         . = ALIGN(4);
-        /* KEEP(*(.isr_vector)) */
+         KEEP(*(.isr_vector)) 
         . = ALIGN(4);
         _evector = . ;
     } >rom

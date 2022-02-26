@@ -50,7 +50,8 @@ $(PROJ_NAME): $(PROJ_NAME).elf
 $(PROJ_NAME).elf: $(SRCS)
 	$(AS) $(AFLAGS) startup.s -o $(BUILD_DIR)/startup.o
 	$(CC) $(CFLAGS) -c main.c -o $(BUILD_DIR)/main.o
-	$(LD) $(LFLAGS) -T flash.ld $(BUILD_DIR)/startup.o $(BUILD_DIR)/main.o -o $(BUILD_DIR)/$(PROJ_NAME).elf
+	$(CC) $(CFLAGS) -c altmain.c -o $(BUILD_DIR)/altmain.o
+	$(LD) $(LFLAGS) -T flash.ld $(BUILD_DIR)/startup.o $(BUILD_DIR)/main.o $(BUILD_DIR)/altmain.o -o $(BUILD_DIR)/$(PROJ_NAME).elf
 	$(OBJDUMP) -D $(BUILD_DIR)/$(PROJ_NAME).elf > $(BUILD_DIR)/$(PROJ_NAME).list
 	$(OBJCOPY) -O binary $(BUILD_DIR)/$(PROJ_NAME).elf $(BUILD_DIR)/$(PROJ_NAME).bin
 

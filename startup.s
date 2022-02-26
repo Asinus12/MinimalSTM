@@ -20,6 +20,7 @@ ITERATIONS: .word 2
 .thumb_func
 reset:
     bl main
+    bl altmain
     b .
 
 
@@ -75,4 +76,4 @@ label:
     .size	vector_table, .-vector_table
 vector_table:
 	.word	_endstack
-	.word	reset
+	.word   reset
