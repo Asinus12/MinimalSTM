@@ -12,7 +12,7 @@ extern const int ITERATIONS;
 
 int altmain(){
 
-    int j = 3; /* (int) ITERATIONS; */
+    int j = 4; /* (int) ITERATIONS; */
     while(j--){
         LEDON();
         LOOP();
