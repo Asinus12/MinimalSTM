@@ -56,6 +56,7 @@ void blinker ( unsigned int n )
     }
 }
 
+
 void setbits(unsigned int reg, unsigned int bits){
     unsigned int ra = GET32(reg);                         
     ra |= bits;                             
@@ -72,31 +73,25 @@ int main ( void )
 {    
     unsigned int ra;             
 
-    
-    // SystemInit() in system_stm32f10x.c called by assembler code 
     // Reset SW, HPRE, PPRE1, PPRE2, ADCPRE and MCO bits 
     ra = GET32(RCC_CFGR);                           // get register 
     ra &= 0xF8FF0000;                               // RCC->CFGR &= (uint32_t)0xF8FF0000;
     PUT32(RCC_CFGR,ra);                             // put back modified value 
-
     
     // Reset HSEON, CSSON and PLLON bits 
     ra = GET32(RCC_CR);                           // get register 
     ra &= 0xFEF6FFFF;                             // RCC->CR &= (uint32_t)0xFEF6FFFF;
     PUT32(RCC_CR,ra);                             // put back modified value 
     
-
     // Reset HSEBYP bit 
     ra = GET32(RCC_CR);                           // get register 
     ra &= 0xFFFBFFFF;                             // RCC->CR &= (uint32_t)0xFFFBFFFF;
     PUT32(RCC_CR,ra);                             // put back modified value 
     
-
     // Reset PLLSRC, PLLXTPRE, PLLMUL and USBPRE/OTGFSPRE bits 
     ra = GET32(RCC_CR);                           // get register 
     ra &= 0xFF80FFFF;                             // RCC->CFGR &= (uint32_t)0xFF80FFFF;
     PUT32(RCC_CR,ra);                             // put back modified value 
-    
     
     // Enable HSE  already in blinker    
     ra = GET32(RCC_CR);                           // get register 
@@ -106,12 +101,10 @@ int main ( void )
     // already in blinker
     while(1) if(GET32(RCC_CR) & (0x00020000)) break;   // wait for ready flag (bit 17 HSERDY)
 
-
     // Enable Prefetch Buffer 
     ra = GET32(FLASH_ACR);                           // get register 
     ra |= 0x10;                                      // Enable prefetch bufffer
     PUT32(FLASH_ACR,ra);                             // put back modified value 
-
 
     // Flash 0 wait state 
     ra = GET32(FLASH_ACR);                           // get register 
@@ -147,7 +140,6 @@ int main ( void )
     ra |= 0x00000001;                               // RCC->CFGR |= (uint32_t)RCC_CFGR_SW_HSE;    
     PUT32(RCC_CFGR,ra);                             // put back modified value 
 
-    
     // Wait till HSE is used as system clock source 
     while(1) if(GET32(RCC_CFGR) & (0xC)) break;   // while ((RCC->CFGR & (uint32_t)0x0000000C) != (uint32_t)0x04)
     
@@ -162,7 +154,6 @@ int main ( void )
     ra = GET32(RCC_APB2ENR);                        
     ra |= 0x00000004;           // RCC_APB2ENR_IOPAEN
     PUT32(RCC_APB2ENR,ra);            
-
 
 
     /*******************************************************/
@@ -241,20 +232,13 @@ int main ( void )
     /********** USART 2 CONFIG  PA2:TX, PA3:RX  ************/
     /*******************************************************/
 
-    
-           
-    //bbinitusart2
     // pa2 tx 
-    setbits(GPIOA | GPIOX_CRL, 1 << 11);
-    setbits(GPIOA | GPIOX_CRL, 1 << 9);
-
-    // ra = GET32(GPIOA | GPIOX_CRL);                        
-    // ra |= (1<<11);              // CNF2 pushpull 
-    // PUT32(GPIOA | GPIOX_CRL,ra);    
-    // ra = GET32(GPIOA | GPIOX_CRL);                        
-    // ra |= (1<<9);              // MODE2 2Mhz 
-    // PUT32(GPIOA | GPIOX_CRL,ra);   
-
+    ra = GET32(GPIOA | GPIOX_CRL);                        
+    ra |= (1<<11);              // CNF2 pushpull 
+    PUT32(GPIOA | GPIOX_CRL,ra);    
+    ra = GET32(GPIOA | GPIOX_CRL);                        
+    ra |= (1<<9);              // MODE2 2Mhz 
+    PUT32(GPIOA | GPIOX_CRL,ra);   
 
     // pa3 rx 
     ra = GET32(GPIOA | GPIOX_CRL);                        
