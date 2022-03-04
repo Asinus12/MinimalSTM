@@ -8,16 +8,13 @@ BUILD_DIR =./build
 ######################################################################
 #                         SETUP SOURCES                              #
 ######################################################################
-
 SRCS   = main.c
 SRCS += startup.s
 
 ######################################################################
 #                         SETUP TOOLS                                #
 ######################################################################
-
 TOOLS_DIR = /usr/bin
-
 AS		= $(TOOLS_DIR)/arm-none-eabi-as
 CC      = $(TOOLS_DIR)/arm-none-eabi-gcc
 LD		= $(TOOLS_DIR)/arm-none-eabi-ld
@@ -31,11 +28,12 @@ XXD		= $(TOOLS_DIR)/xxd
 AFLAGS = --warn --fatal-warnings -mcpu=cortex-m3
 
 ## Compiler options 
-CFLAGS = -Wall -O2 -ffreestanding
-CFLAGS += -mcpu=cortex-m3 -mthumb
+CFLAGS = -Wall -O2 
+#CFLAGS += -ffreestanding # does not include libc
+CFLAGS += -mcpu=cortex-m3 -mthumb 
 
 ## Linker options
-LFLAGS  = -nostdlib -nostartfiles 
+#LFLAGS  = -nostdlib -nostartfiles 
 
 
 
