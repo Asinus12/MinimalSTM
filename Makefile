@@ -29,11 +29,13 @@ AFLAGS = --warn --fatal-warnings -mcpu=cortex-m3
 
 ## Compiler options 
 CFLAGS = -Wall -O2 
-#CFLAGS += -ffreestanding # does not include libc
+CFLAGS += -ffreestanding # does not include libc
 CFLAGS += -mcpu=cortex-m3 -mthumb 
+
 
 ## Linker options
 #LFLAGS  = -nostdlib -nostartfiles 
+
 
 
 

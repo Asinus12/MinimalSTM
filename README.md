@@ -65,8 +65,23 @@ GDB commands:
 ```    
 
 
-V
+Compiling newlib 
+```    
+$ wget ftp://sources.redhat.com/pub/newlib/newlib-1.18.0.tar.gz
+$ tar xzf newlib-1.18.0.tar.gz
+$ cd newlib-1.18.0/
+$ ./configure --target arm-none-eabi --disable-newlib-supplied-syscalls
+$ make
+$ cd ..
+```    
+
+
 **References**
+- Sourceware newlib  
+  https://sourceware.org/newlib/  
+- Using newlib in ARM baremetal programs  
+  https://balau82.wordpress.com/2010/12/16/using-newlib-in-arm-bare-metal-programs/  
+- 
 - Linker script reference:  
   https://sourceware.org/binutils/docs/ld/index.html  
 - Assembly directives (armclang):  

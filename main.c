@@ -69,12 +69,7 @@ void blink(unsigned int n )
     }
 }
 
-int putchar(int ch){
-    while(1) if(GET32(USART2 | USART_SR) & (0x0080)) break; // SR_TXE, 1 when data moved to shift reg
-    DUMMY(300000);
-    setbits(USART2 | USART_DR, ch); 
-    return 0;
-}
+
 
 int main ( void )
 {    
@@ -110,17 +105,20 @@ int main ( void )
 
     // pa2 usart2 tx 
     setbits(GPIOA | GPIOX_CRL, 1 << 11);    // CNF2 pushpull
-    setbits(GPIOA | GPIOX_CRL, 1 << 9);     // mode2 mhz
+    setbits(GPIOA | GPIOX_CRL, 1 << 8);     // MODE2 bits [98]  00 input, 01 output 10Mhz, 10 output 2Mhz, 11 output 50Mhz
 
     // pa3 usart2 rx 
     setbits(GPIOA | GPIOX_CRL, 1 << 14);    // CNF3 floatin (reset state)
     clrbits(GPIOA | GPIOX_CRL, 0xFFFFCFFF); // MODE3[00] input == reset state
+
     clrbits(USART2 | USART_CR1, 0xE9F3 );   // CR1_CLEAR_Mask;
-    setbits(USART2 | USART_CR1, 0x000C);    // bit 2-RXE, 3-TXE, 10[0]-NO parity, 12[0]-word8bit
-    clrbits(USART2 | USART_CR2, 0xCFFF);    // CR2_STOP_CLEAR_Mask;
-    setbits(USART2 | USART_CR2, 0xCFFF);    // STOP[13,12]: 00 - 1 stop bit 
-    clrbits(USART2 | USART_CR3, 0xFCFF);    // STOP[13,12]: 00 - 1 stop bit 
-    clrbits(USART2 | USART_CR3, 0x0000);    // bit 9-CTSE 0: disabled, 8-RTSE 0: disabled
+    setbits(USART2 | USART_CR1, 0x000C);    // [2]:(1)RXE enabled, [3]:(1)TXE enabled, [10]: 0 no parity, [12]:(0) 1S-8D-nP, (1) 1S-9D-nP
+
+    //clrbits(USART2 | USART_CR2, 0xCFFF);    // CR2_STOP_CLEAR_Mask;
+    //setbits(USART2 | USART_CR2, 0xCFFF);    // STOP[13,12]: 00 - 1 stop bit 
+
+    clrbits(USART2 | USART_CR3, 0xFCFF);     // clears bits 9, 8, 
+    clrbits(USART2 | USART_CR3, 0x0200);    // bit 9-CTSE 1: disabled, 8-RTSE 0: disabled
 
     // usart2 baud rate 
     unsigned int tmpreg = 0x00, apbclock = 0x00;
@@ -137,21 +135,21 @@ int main ( void )
     setbits(USART2 | USART_CR1, 0x2000); // enable usart (CR1_UE_Set)
 
     
-    // printf("h"); // work ok 
-    //printf('s'); // expected int printf (const char *__restrict, ...)
-
    
     
-    while(1) if(GET32(USART2 | USART_SR) & (0x0080)) break; // SR_TXE, 1 when data moved to shift reg
-    setbits(USART2 | USART_DR, 'b'); 
-    while(1) if(GET32(USART2 | USART_SR) & (0x0080)) break; // SR_TXE, 1 when data moved to shift reg
-    setbits(USART2 | USART_DR, 'l'); 
-    while(1) if(GET32(USART2 | USART_SR) & (0x0080)) break; // SR_TXE, 1 when data moved to shift reg
-    setbits(USART2 | USART_DR, 'b'); 
-    while(1) if(GET32(USART2 | USART_SR) & (0x0080)) break; // SR_TXE, 1 when data moved to shift reg
-    setbits(USART2 | USART_DR, 'l'); 
-    
+      
+    // printf((const char *)"a");
     blink(2); // blink with HSE as system clock 
+
+    
+
+    while (1)
+    {
+    while(1) if(GET32(USART2 | USART_SR) & (0x0080)) break; // SR_TXE, 1 when data moved to shift reg
+    setbits(USART2 | USART_DR, (unsigned char) 'B'); 
+    blink(1); // blink with HSE as system clock 
+    }
+    
 
 
     return(0);
