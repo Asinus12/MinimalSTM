@@ -1,6 +1,6 @@
 /* BB2022 */
 #include <stdio.h>
-
+#include <sys/stat.h>
 
 // AMBA bus and other periphery registers 
 #define PERIPH_BASE  0x40000000
@@ -70,42 +70,84 @@ void blink(unsigned int n )
 }
 
 
-void _exit(int status){
+extern int altmain();
+extern int _end;
 
-};
-void* _sbrk(intptr_t increment){
+void *_sbrk(int incr) {
+  static unsigned char *heap = NULL;
+  unsigned char *prev_heap;
 
-};
-ssize_t _write(int fd, const void *buf, size_t count){
+  if (heap == NULL) {
+    heap = (unsigned char *)&_end;
+  }
+  prev_heap = heap;
 
-};
+  heap += incr;
 
-void _close(void){
+  return prev_heap;
+}
 
-};
+int _close(int file) {
+  return -1;
+}
 
-void _fstat(void){
+int _fstat(int file, struct stat *st) {
+  st->st_mode = S_IFCHR;
 
-};
+  return 0;
+}
 
-void _isatty(void){
+int _isatty(int file) {
+  return 1;
+}
 
-};
+int _lseek(int file, int ptr, int dir) {
+  return 0;
+}
 
-void _lseek(void){
+void _exit(int status) {
+  __asm("BKPT #0");
+}
 
-};
+void _kill(int pid, int sig) {
+  return;
+}
 
-void _read(void){
+int _getpid(void) {
+  return -1;
+}
 
-};
+int _write (int file, char * ptr, int len) {
+  int written = 0;
 
-void _kill(void){
+  if ((file != 1) && (file != 2) && (file != 3)) {
+    return -1;
+  }
 
-};
-void _getpid(void){
+  for (; len != 0; --len) {
+    // if (usart_serial_putchar(&stdio_uart_module, (uint8_t)*ptr++)) {
+    //   return -1;
+    // }
+    // ++written;
+  }
+  return written;
+}
 
-};
+int _read (int file, char * ptr, int len) {
+  int read = 0;
+
+  if (file != 0) {
+    return -1;
+  }
+
+  for (; len > 0; --len) {
+    // usart_serial_getchar(&stdio_uart_module, (uint8_t *)ptr++);
+    // read++;
+  }
+  return read;
+}
+
+
 
 
 
@@ -176,7 +218,7 @@ int main ( void )
    
     
       
-    printf("hello");
+    //printf("hello");
     blink(5); // blink with HSE as system clock 
 
     
@@ -184,7 +226,7 @@ int main ( void )
     while (1)
     {
     while(1) if(GET32(USART2 | USART_SR) & (0x0080)) break; // SR_TXE, 1 when data moved to shift reg
-    setbits(USART2 | USART_DR, (unsigned char) 'B'); 
+    setbits(USART2 | USART_DR, (unsigned char) 'O'); 
     blink(1); // blink with HSE as system clock 
     }
     

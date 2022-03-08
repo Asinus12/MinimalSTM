@@ -9,6 +9,7 @@ BUILD_DIR =./build
 #                         SETUP SOURCES                              #
 ######################################################################
 SRCS   = main.c
+SRCS += altmain.c
 SRCS += startup.s
 
 ######################################################################
@@ -55,8 +56,8 @@ $(PROJ_NAME): $(PROJ_NAME).elf
 
 $(PROJ_NAME).elf: $(SRCS)
 	$(CC) $(CFLAGS) $(LFLAGS) $^ -o $@ 
-	$(OBJCOPY) -O ihex $(BUILD_DIR)/$(PROJ_NAME).elf   $(BUILD_DIR)/$(PROJ_NAME).hex
-	$(OBJCOPY) -O binary $(BUILD_DIR)/$(PROJ_NAME).elf $(BUILD_DIR)/$(PROJ_NAME).bin
+	$(OBJCOPY) -O ihex $ $(PROJ_NAME).elf $(PROJ_NAME).hex
+	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
 
 #	$(CC) $(CFLAGS) -s startup.s -c $(BUILD_DIR)/startup.o 
 # 	$(AS) $(AFLAGS) startup.s -o $(BUILD_DIR)/startup.o
@@ -72,11 +73,11 @@ $(PROJ_NAME).elf: $(SRCS)
 # Clean the project 
 clean:
 #	rm -rf  $(BUILD_DIR)/*
-	rm -f *.o $(BUILD_DIR)/$(PROJ_NAME).elf $(BUILD_DIR)/$(PROJ_NAME).hex $(BUILD_DIR)/$(PROJ_NAME).bin
+	rm -f *.o $(PROJ_NAME).elf $(PROJ_NAME).hex $(PROJ_NAME).bin
 
 # Flash the STM32
 flash: 
-	st-flash write $(BUILD_DIR)/$(PROJ_NAME).bin 0x8000000
+	st-flash write $(PROJ_NAME).bin 0x8000000
 
 # Show sections, sizes, VMAs and LMAs 
 dumpmain:

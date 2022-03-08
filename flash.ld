@@ -60,7 +60,7 @@ SECTIONS
         . = ALIGN(4);
     } > ram
 
-
+    _end = . ;
 
 
 }
