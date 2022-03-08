@@ -1,5 +1,6 @@
 /* BB2022 */
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 
 // AMBA bus and other periphery registers 
@@ -43,6 +44,10 @@
 void PUT32 ( unsigned int, unsigned int );
 unsigned int GET32 ( unsigned int );
 void DUMMY ( unsigned int );
+void LEDON(void);
+void LEDOFF(void);
+void LOOP(void);
+
 
 // C functions 
 void setbits(unsigned int reg, unsigned int bits){
@@ -70,7 +75,7 @@ void blink(unsigned int n )
 }
 
 
-extern int altmain();
+
 extern int _end;
 
 void *_sbrk(int incr) {
@@ -86,37 +91,30 @@ void *_sbrk(int incr) {
 
   return prev_heap;
 }
-
 int _close(int file) {
   return -1;
 }
-
 int _fstat(int file, struct stat *st) {
   st->st_mode = S_IFCHR;
 
   return 0;
 }
-
 int _isatty(int file) {
   return 1;
 }
-
 int _lseek(int file, int ptr, int dir) {
   return 0;
 }
-
 void _exit(int status) {
-  __asm("BKPT #0");
+  //__asm("BKPT #0");
+  
 }
-
 void _kill(int pid, int sig) {
   return;
 }
-
 int _getpid(void) {
   return -1;
 }
-
 int _write (int file, char * ptr, int len) {
   int written = 0;
 
@@ -129,10 +127,15 @@ int _write (int file, char * ptr, int len) {
     //   return -1;
     // }
     // ++written;
+    if(ptr++ != NULL){
+      setbits(USART2 | USART_DR, (unsigned char) *ptr); 
+    }
+    return 0;
+    
+
   }
   return written;
 }
-
 int _read (int file, char * ptr, int len) {
   int read = 0;
 
@@ -215,15 +218,14 @@ int main ( void )
     setbits(USART2 | USART_CR1, 0x2000); // enable usart (CR1_UE_Set)
 
     
-   
-    
-      
-    //printf("hello");
-    blink(5); // blink with HSE as system clock 
 
     
+    // blink(2); // blink with HSE as system clock 
 
-    while (1)
+    
+    
+    int i = 3;
+    while (i--)
     {
     while(1) if(GET32(USART2 | USART_SR) & (0x0080)) break; // SR_TXE, 1 when data moved to shift reg
     setbits(USART2 | USART_DR, (unsigned char) 'O'); 
@@ -231,6 +233,21 @@ int main ( void )
     }
     
 
+    printf("hello world");
+
+
+
+    LEDON();
+    LOOP();
+    LEDOFF();
+    LOOP();
+    LEDON();
+    LOOP();
+    LEDOFF();
+    LOOP();
+
+    while (1);
+    
 
     return(0);
 }

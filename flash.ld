@@ -6,6 +6,9 @@ STACK_SIZE = 0x80; /* 128   */
 PC13_BSRR = 0x40011010;
 _endstack = 0x20005000;
 
+_Min_Heap_Size = 300;      /* required amount of heap  */
+_Min_Stack_Size = 0; /* required amount of stack */
+
 MEMORY
 {
     rom : ORIGIN = 0x08000000, LENGTH = 64K
@@ -60,7 +63,15 @@ SECTIONS
         . = ALIGN(4);
     } > ram
 
-    _end = . ;
+    ._user_heap_stack :
+    {
+        . = ALIGN(4);
+        PROVIDE ( end = . );
+        PROVIDE ( _end = . );
+        . = . + _Min_Heap_Size;
+        . = . + _Min_Stack_Size;
+        . = ALIGN(4);
+    } >ram
 
 
 }

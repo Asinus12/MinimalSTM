@@ -9,7 +9,6 @@ BUILD_DIR =./build
 #                         SETUP SOURCES                              #
 ######################################################################
 SRCS   = main.c
-SRCS += altmain.c
 SRCS += startup.s
 
 ######################################################################
@@ -29,10 +28,10 @@ XXD		= $(TOOLS_DIR)/xxd
 AFLAGS = --warn --fatal-warnings -mcpu=cortex-m3
 
 ## Compiler options 
-#CFLAGS  = -ggdb # WILL NOT FLASH PROPERLY 
+CFLAGS  = -ggdb # WILL NOT FLASH PROPERLY 
 CFLAGS = -Wall -O0 
 CFLAGS = -Wextra -Warray-bounds -Wextra -Warray-bounds
-CFLAGS += -ffreestanding # does not include libc
+# CFLAGS += -ffreestanding # does not include libc
 CFLAGS += -mcpu=cortex-m3 -mthumb
 CFLAGS += -mlittle-endian -mthumb-interwork
 #CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16

@@ -19,7 +19,7 @@ ITERATIONS: .word 2
 .word reset
 .thumb_func
 reset:
-    bl altmain
+    bl __libc_init_array
     bl main
     b .
 
