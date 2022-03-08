@@ -70,6 +70,44 @@ void blink(unsigned int n )
 }
 
 
+void _exit(int status){
+
+};
+void* _sbrk(intptr_t increment){
+
+};
+ssize_t _write(int fd, const void *buf, size_t count){
+
+};
+
+void _close(void){
+
+};
+
+void _fstat(void){
+
+};
+
+void _isatty(void){
+
+};
+
+void _lseek(void){
+
+};
+
+void _read(void){
+
+};
+
+void _kill(void){
+
+};
+void _getpid(void){
+
+};
+
+
 
 int main ( void )
 {    
@@ -138,8 +176,8 @@ int main ( void )
    
     
       
-    // printf((const char *)"a");
-    blink(2); // blink with HSE as system clock 
+    printf("hello");
+    blink(5); // blink with HSE as system clock 
 
     
 

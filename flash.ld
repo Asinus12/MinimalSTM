@@ -35,10 +35,12 @@ SECTIONS
    
     .bss (NOLOAD) :         /* uninitialized data */   
     {
-        _sbss = . ;         
+        _sbss = . ;  
+        __bss_start__ = _sbss;       
         *(.bss*)
         *(COMMON)           /* int foo() yes, static int foo() no*/
-        _ebss = . ;         
+        _ebss = . ;   
+        __bss_end__ = _ebss;      
     } > ram
 
 

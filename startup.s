@@ -20,7 +20,6 @@ ITERATIONS: .word 2
 .thumb_func
 reset:
     bl main
-    bl altmain
     b .
 
 

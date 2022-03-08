@@ -66,6 +66,7 @@ GDB commands:
 
 
 Compiling newlib 
+https://stackoverflow.com/questions/70295236/linking-newlib-nano-with-arm-none-eabi-gnu-toolchain-undefined-reference-to-l  
 ```    
 $ wget ftp://sources.redhat.com/pub/newlib/newlib-1.18.0.tar.gz
 $ tar xzf newlib-1.18.0.tar.gz
